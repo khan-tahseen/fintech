@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import React, { useState } from 'react';
 import { defaultStyles } from '@/constants/Styles';
 import Colors from '@/constants/Colors';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useSignIn } from '@clerk/clerk-expo';
+import { isClerkAPIResponseError, useSignIn } from '@clerk/clerk-expo';
 
 enum SignInType {
   Phone,
@@ -54,6 +55,11 @@ const Login = () => {
         });
       } catch (error) {
         console.log('Error while signing in: ', error);
+        if (isClerkAPIResponseError(error)) {
+          if (error.errors[0].code === 'form_identifier_not_found') {
+            Alert.alert('Error', error.errors[0].message);
+          }
+        }
       }
     }
   };
