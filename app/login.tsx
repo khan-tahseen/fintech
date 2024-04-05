@@ -10,8 +10,9 @@ import {
 import React, { useState } from 'react';
 import { defaultStyles } from '@/constants/Styles';
 import Colors from '@/constants/Colors';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSignIn } from '@clerk/clerk-expo';
 
 enum SignInType {
   Phone,
@@ -21,15 +22,40 @@ enum SignInType {
 }
 
 const Login = () => {
+  const router = useRouter();
+  const { signIn } = useSignIn();
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState('');
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 85 : 0;
 
   const onSignIn = async (type: SignInType) => {
     if (type === SignInType.Phone) {
-      // Perform phone number sign-in
+      try {
+        const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+        // @ts-ignore
+        const { supportedFirstFactors } = await signIn?.create({
+          identifier: fullPhoneNumber,
+        });
+        const firstPhoneFactor: any = supportedFirstFactors?.find(
+          (factor: any) => {
+            return factor.strategy === 'phone_code';
+          }
+        );
+        const { phoneNumberId } = firstPhoneFactor;
+
+        await signIn?.prepareFirstFactor({
+          strategy: 'phone_code',
+          phoneNumberId,
+        });
+
+        router.push({
+          pathname: '/verify/[phone]',
+          params: { phone: fullPhoneNumber, signin: 'true' },
+        });
+      } catch (error) {
+        console.log('Error while signing in: ', error);
+      }
     }
-    console.log('Login');
   };
 
   return (
