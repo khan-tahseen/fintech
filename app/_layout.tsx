@@ -2,12 +2,12 @@ import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { TouchableOpacity } from 'react-native';
-import { ClerkProvider } from '@clerk/clerk-expo';
+import { Text, TouchableOpacity } from 'react-native';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -40,6 +40,8 @@ SplashScreen.preventAutoHideAsync();
 
 const InitialLayout = () => {
   const router = useRouter();
+  const segments = useSegments();
+  const { isLoaded, isSignedIn } = useAuth();
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -56,8 +58,20 @@ const InitialLayout = () => {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
+  useEffect(() => {
+    console.log('isSignedIn:', isSignedIn);
+    if (!isLoaded) return;
+
+    const isAuthGroup = segments[0] === '(authenticated)';
+    if (isSignedIn && !isAuthGroup) {
+      router.replace('/(authenticated)/(tabs)/home');
+    } else if (!isSignedIn) {
+      router.replace('/');
+    }
+  }, [isSignedIn]);
+
+  if (!loaded || !isLoaded) {
+    return <Text style={{textAlign: 'center', marginTop: '100%'}}>Loading...</Text>;
   }
 
   return (
@@ -119,6 +133,10 @@ const InitialLayout = () => {
             </TouchableOpacity>
           ),
         }}
+      />
+      <Stack.Screen
+        name="(authenticated)/(tabs)"
+        options={{ headerShown: false }}
       />
     </Stack>
   );

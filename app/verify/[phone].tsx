@@ -79,7 +79,6 @@ const Phone = () => {
       <CodeField
         ref={ref}
         {...props}
-        // Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
         value={code}
         onChangeText={setCode}
         cellCount={CELL_COUNT}
