@@ -48,7 +48,7 @@ export const defaultStyles = StyleSheet.create({
   sectionHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    margin: 20,
+    margin: 18,
     marginBottom: 10,
   },
   block: {
