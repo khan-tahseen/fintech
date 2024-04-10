@@ -1,12 +1,32 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Tabs } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 
 const Layout = () => {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: Colors.primary }}>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors.primary,
+        tabBarBackground: () => (
+          <BlurView
+            intensity={100}
+            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)' }}
+          />
+        ),
+        tabBarStyle: {
+          backgroundColor: 'transparent',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+      }}
+    >
       <Tabs.Screen
         name="home"
         options={{
@@ -43,7 +63,7 @@ const Layout = () => {
           ),
         }}
       />
-      
+
       <Tabs.Screen
         name="lifestyle"
         options={{
@@ -53,7 +73,6 @@ const Layout = () => {
           ),
         }}
       />
-      
     </Tabs>
   );
 };
