@@ -3,14 +3,17 @@ import React from 'react';
 import Colors from '@/constants/Colors';
 import RoundBtn from '@/components/RoundBtn';
 import Dropdown from '@/components/Dropdown';
+import WidgetList from '@/components/SortableList/WidgetList';
 import { useBalanceStore } from '@/store/balanceStore';
 import { defaultStyles } from '@/constants/Styles';
 import { Ionicons } from '@expo/vector-icons';
-import WidgetList from '@/components/SortableList/WidgetList';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 const Home = () => {
+  const headerHeight = useHeaderHeight();
   const { balance, transactions, runTransactions, clearTransactions } =
     useBalanceStore();
+
   const onAddMoney = () => {
     runTransactions({
       id: Math.random().toString(36).substring(7),
@@ -20,7 +23,8 @@ const Home = () => {
     });
   };
   return (
-    <ScrollView style={{ backgroundColor: Colors.background }}>
+    <ScrollView style={{ backgroundColor: Colors.background }}
+      contentContainerStyle={{ paddingTop: headerHeight }}>
       <View style={styles.account}>
         <View style={styles.row}>
           <Text style={styles.balance}>{balance()}</Text>
@@ -65,7 +69,7 @@ const Home = () => {
           </View>
         ))}
       </View>
-      
+
       <Text style={defaultStyles.sectionHeader}>Widgets</Text>
       <WidgetList />
     </ScrollView>

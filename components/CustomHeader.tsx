@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     input: {
-
         flex: 1,
         paddingVertical: 8,
         paddingRight: 8,

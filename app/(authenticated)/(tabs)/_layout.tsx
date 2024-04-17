@@ -34,6 +34,7 @@ const Layout = () => {
         options={{
           title: 'Home',
           header: () => <CustomHeader />,
+          headerTransparent: true,
           tabBarIcon: ({ size, color }) => (
             <FontAwesome name="registered" size={size} color={color} />
           ),
