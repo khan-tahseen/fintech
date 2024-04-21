@@ -8,7 +8,11 @@ import { useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { Text, TouchableOpacity } from 'react-native';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
 
+const queryClient = new QueryClient()
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // Cache the clerk JWT
@@ -71,7 +75,7 @@ const InitialLayout = () => {
   }, [isSignedIn]);
 
   if (!loaded || !isLoaded) {
-    return <Text style={{textAlign: 'center', marginTop: '100%'}}>Loading...</Text>;
+    return <Text style={{ textAlign: 'center', marginTop: '100%' }}>Loading...</Text>;
   }
 
   return (
@@ -148,7 +152,12 @@ function RootLayoutNav() {
       publishableKey={CLERK_PUBLISHABLE_KEY!}
       tokenCache={tokenCache}
     >
-      <InitialLayout />
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar style='light' />
+          <InitialLayout />
+        </GestureHandlerRootView>
+      </QueryClientProvider>
     </ClerkProvider>
   );
 }

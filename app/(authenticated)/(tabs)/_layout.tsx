@@ -62,6 +62,8 @@ const Layout = () => {
         name="crypto"
         options={{
           title: 'Crypto',
+          header: () => <CustomHeader />,
+          headerTransparent: true,
           tabBarIcon: ({ size, color }) => (
             <FontAwesome name="bitcoin" size={size} color={color} />
           ),
