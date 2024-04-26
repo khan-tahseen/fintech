@@ -1,5 +1,5 @@
-import { Image, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import { Image, ScrollView, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import Colors from '@/constants/Colors';
@@ -7,9 +7,12 @@ import { defaultStyles } from '@/constants/Styles';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 
+const categories = ['Overview', 'News', 'Orders', 'Transaction'];
+
 const Details = () => {
     const { id } = useLocalSearchParams();
     const headerHeight = useHeaderHeight();
+    const [activeIndex, setActiveIndex] = useState(0);
 
     const { data } = useQuery({
         queryKey: ['info', id],
@@ -18,7 +21,7 @@ const Details = () => {
             return info[+id];
         },
     });
-    console.log('id => ', id);
+
     return (
         <React.Fragment>
             <Stack.Screen options={{ title: data?.name }} />
@@ -27,9 +30,21 @@ const Details = () => {
                 contentInsetAdjustmentBehavior="automatic"
                 sections={[{ data: [{ title: 'Chart' }] }]}
                 keyExtractor={(i) => i.title}
+                renderSectionHeader={() => (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.sectionHeader}>
+                        {categories.map((item, index) => (
+                            <TouchableOpacity style={activeIndex === index ? styles.categoriesBtnActive : styles.categoriesBtn}
+                                onPress={() => setActiveIndex(index)}
+                                key={index}>
+                                <Text style={activeIndex === index ? styles.categoryTextActive : styles.categoryText}>{item}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                )}
                 ListHeaderComponent={() => (
                     <React.Fragment>
-                        <View style={styles.sectionHeader}>
+                        <View style={styles.listHeader}>
                             <Text style={styles.subTitle}>{data?.symbol}</Text>
                             <Image source={{ uri: data?.logo }} style={{ width: 60, height: 60 }} />
                         </View>
@@ -47,6 +62,7 @@ const Details = () => {
                 )}
                 renderItem={({ item }) => (
                     <React.Fragment>
+                        <View style={{height: 500, backgroundColor: 'green'}}></View>
                         <View style={[defaultStyles.block, { marginTop: 18 }]}>
                             <Text style={styles.subTitle}>Overview</Text>
                             <Text style={{ color: Colors.gray }}>
@@ -66,7 +82,7 @@ const Details = () => {
 export default Details;
 
 const styles = StyleSheet.create({
-    sectionHeader: {
+    listHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -78,4 +94,35 @@ const styles = StyleSheet.create({
         marginBottom: 18,
         color: Colors.gray,
     },
+    sectionHeader: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingBottom: 8,
+        backgroundColor: Colors.background,
+        borderBottomColor: Colors.lightGray,
+        borderBottomWidth: StyleSheet.hairlineWidth
+    },
+    categoryText: {
+        fontSize: 14,
+        color: Colors.gray,
+    },
+    categoryTextActive: {
+        fontSize: 14,
+        color: Colors.dark,
+    },
+    categoriesBtn: {
+        padding: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 18
+    },
+    categoriesBtnActive: {
+        padding: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 18,
+        backgroundColor: '#fff',
+    }
 });
