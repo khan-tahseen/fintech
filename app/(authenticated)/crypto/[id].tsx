@@ -1,4 +1,4 @@
-import { Image, ScrollView, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -10,9 +10,11 @@ import { CartesianChart, Line, useChartPressState } from 'victory-native';
 import { Circle, useFont } from '@shopify/react-native-skia';
 import { format } from 'date-fns';
 import * as Haptics from 'expo-haptics';
-import { SharedValue } from 'react-native-reanimated';
+import Animated, { SharedValue, useAnimatedProps } from 'react-native-reanimated';
 
 const categories = ['Overview', 'News', 'Orders', 'Transaction'];
+Animated.addWhitelistedNativeProps({text: true})
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 // const DATA = Array.from({ length: 31 }, (_, i) => ({
 //     day: i,
 //     highTmp: 40 + 30 * Math.random(),
@@ -45,6 +47,21 @@ const Details = () => {
         queryKey: ['tickers'],
         queryFn: async (): Promise<any[]> => await fetch('/api/tickers').then(res => res.json())
     });
+
+    const animatedText = useAnimatedProps(() => {
+        return {
+            text: `${state.y.price.value.value.toFixed(2)} $`,
+            defaultValue: '',
+        }
+    })
+
+    const animatedDateText = useAnimatedProps(() => {
+        const date = new Date(state.x.value.value);
+        return {
+            text: date.toLocaleDateString(),
+            defaultValue: '',
+        }
+    })
 
     return (
         <React.Fragment>
@@ -90,10 +107,18 @@ const Details = () => {
                             {tickers && (
                                 <React.Fragment>
                                     {!isActive && <View>
-                                        <Text style={{fontSize: 28, fontWeight: 'bold', color: Colors.dark}}>
+                                        <Text style={{ fontSize: 28, fontWeight: 'bold', color: Colors.dark }}>
                                             {tickers[tickers.length - 1]?.price.toFixed(2)} $
                                         </Text>
-                                        <Text style={{fontSize: 16, color: Colors.gray}}>Today</Text>
+                                        <Text style={{ fontSize: 16, color: Colors.gray }}>Today</Text>
+                                    </View>}
+                                    {isActive && <View>
+                                        <AnimatedTextInput editable={false} underlineColorAndroid={'transparent'}
+                                            style={{ fontSize: 28, fontWeight: 'bold', color: Colors.dark }} animatedProps={animatedText}>
+                                        </AnimatedTextInput>
+                                        <AnimatedTextInput editable={false} underlineColorAndroid={'transparent'}
+                                            style={{ fontSize: 16, color: Colors.gray }} animatedProps={animatedDateText}>
+                                        </AnimatedTextInput>
                                     </View>}
                                     <CartesianChart data={tickers!} xKey="timestamp" yKeys={["price"]}
                                         chartPressState={state}
