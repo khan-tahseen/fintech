@@ -28,7 +28,7 @@ const lock = () => {
   useEffect(() => {
     if (code.length === 6) {
       console.log('code => ', code);
-      if (code.join('') === '123456') {
+      if (code.join('') === '555555') {
         router.push('/(authenticated)/(tabs)/home');
       } else {
         offset.value = withSequence(
