@@ -28,7 +28,7 @@ export const UserInactivityProvider = ({ children }: any) => {
         } else if (nextAppState === "active" && appState.current.match(/background/)) {
             const elapsed = Date.now() - (storage.getNumber("startTime") || 0);
             console.log("app was inactive for " + elapsed + "ms");
-            if (elapsed > 5000 && isSignedIn) {
+            if (elapsed > 3000) {
                 router.replace('/(authenticated)/(modals)/lock')
             }
         }
