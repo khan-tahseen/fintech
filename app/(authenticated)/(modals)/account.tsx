@@ -1,11 +1,27 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { BlurView } from 'expo-blur';
 import Colors from '@/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { defaultStyles } from '@/constants/Styles';
 import { Ionicons } from '@expo/vector-icons';
+import { getAppIcon, setAppIcon } from 'expo-dynamic-app-icon';
+
+const ICONS = [
+    {
+        name: 'Default',
+        icon: require('@/assets/images/icon.png'),
+    },
+    {
+        name: 'Dark',
+        icon: require('@/assets/images/icon-dark.png'),
+    },
+    {
+        name: 'Vivid',
+        icon: require('@/assets/images/icon-vivid.png'),
+    }
+]
 
 const Account = () => {
     const { user } = useUser();
@@ -13,6 +29,16 @@ const Account = () => {
     const [firstName, setFirstName] = useState(user?.firstName);
     const [lastName, setLastName] = useState(user?.lastName);
     const [edit, setEdit] = useState(false);
+    const [activeIcon, setActiveIcon] = useState('Default');
+
+    useEffect(() => {
+        const loadCurrentIconPref = async () => {
+            const icon = await getAppIcon();
+            setActiveIcon(icon);
+        }
+
+        loadCurrentIconPref();
+    }, [])
 
     const onCaptureImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -27,6 +53,11 @@ const Account = () => {
             const base64 = `data:image/png;base64,${result.assets[0].base64}`;
             user?.setProfileImage({ file: base64 });
         }
+    }
+
+    const onChangeAppIcon = async (icon: string) => {
+        await setAppIcon(icon.toLowerCase())
+        setActiveIcon(icon);
     }
 
     const onSaveUser = async () => {
@@ -45,7 +76,7 @@ const Account = () => {
         <BlurView intensity={60} tint='dark' style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', paddingTop: 80 }}>
             <View style={{ alignItems: 'center' }}>
                 <TouchableOpacity onPress={onCaptureImage} style={styles.captureBtn}>
-                    {user?.imageUrl && <Image source={{uri: user?.imageUrl}} style={styles.avatar} />}
+                    {user?.imageUrl && <Image source={{ uri: user?.imageUrl }} style={styles.avatar} />}
                 </TouchableOpacity>
 
                 {user && (
@@ -85,23 +116,35 @@ const Account = () => {
                 <View style={styles.actions}>
                     <TouchableOpacity style={styles.btn} onPress={() => console.log('Logout user')}>
                         <Ionicons name='log-out' size={24} color='#fff' />
-                        <Text style={{color: '#fff', fontSize: 18}}>Log out</Text>
+                        <Text style={{ color: '#fff', fontSize: 18 }}>Log out</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.btn} onPress={() => console.log('Account')}>
                         <Ionicons name='person' size={24} color='#fff' />
-                        <Text style={{color: '#fff', fontSize: 18}}>Account</Text>
+                        <Text style={{ color: '#fff', fontSize: 18 }}>Account</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.btn} onPress={() => console.log('Learn')}>
                         <Ionicons name='bulb' size={24} color='#fff' />
-                        <Text style={{color: '#fff', fontSize: 18}}>Learn</Text>
+                        <Text style={{ color: '#fff', fontSize: 18 }}>Learn</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.btn} onPress={() => console.log('Inbox')}>
                         <Ionicons name='megaphone' size={24} color='#fff' />
-                        <Text style={{color: '#fff', fontSize: 18}}>Inbox</Text>
+                        <Text style={{ color: '#fff', fontSize: 18 }}>Inbox</Text>
                         <View style={styles.notify}>
-                            <Text style={{color: '#fff'}}>14</Text>
+                            <Text style={{ color: '#fff' }}>14</Text>
                         </View>
                     </TouchableOpacity>
+                </View>
+
+                <View style={styles.actions}>
+                    {ICONS.map((icon, index) => (
+                        <TouchableOpacity key={index} style={styles.btn} onPress={() => onChangeAppIcon(icon.name)}>
+                            <Image source={icon.icon} style={{ width: 24, height: 24 }} />
+                            <Text style={{ color: '#fff', fontSize: 18 }}>{icon.name}</Text>
+                            {activeIcon.toLowerCase() === icon.name.toLowerCase() && (
+                                <Ionicons name='checkmark-outline' size={24} color='#fff' />
+                            )}
+                        </TouchableOpacity>
+                    ))}
                 </View>
             </View>
         </BlurView>
